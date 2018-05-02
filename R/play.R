@@ -13483,3 +13483,90 @@ saturationLevel = function(depth, bottomTime){
 }
     
 saturationLevel(depth = depth, bottomTime = bottomTime) %>% hist(., breaks = 16)
+
+
+########################################################################
+## Title: Model-based Boosting in R
+## Date: 2018-03-03
+## Source: https://cran.r-project.org/web/packages/mboost/vignettes/mboost_tutorial.pdf
+########################################################################
+
+library(mboost)
+data("bodyfat", package = "TH.data")
+
+## Reproduce formula of Garcia et al., 2005
+lm1 <- lm(DEXfat ~ hipcirc + kneebreadth + anthro3a, data = bodyfat)
+coef(lm1)
+
+## Estimate same model by glmboost
+glm1 <- glmboost(DEXfat ~ hipcirc + kneebreadth + anthro3a, data = bodyfat)
+coef(glm1)
+
+## Estimate with all variables
+##
+glm2 <- glmboost(DEXfat ~ ., data = bodyfat)
+coef(glm2)
+## Specifying the 'which' arguement in coef will list all the
+## coefficient even if they are zero.
+coef(glm2, which = "")
+
+## Plot the coefficient path, this is similar to LARS
+plot(glm2, off2int = TRUE)
+
+
+## now change ylim to the range of the coefficients without intercept (zoom-in)
+preds <- names(bodyfat[, names(bodyfat) != "DEXfat"])
+plot(glm2, ylim = range(coef(glm2, which = preds)))
+
+
+## Use a GAM model without assuming for linearity
+gam1 <- gamboost(DEXfat ~ bbs(hipcirc) + bbs(kneebreadth) + bbs(anthro3a),
+                 data = bodyfat)
+par(mfrow = c(1,3)) ## 3 plots in one device
+plot(gam1)
+coef(gam1)
+
+
+########################################################################
+## Title: Get Started with XGBoost
+## Date: 2018-03-06
+## Source: https://xgboost.readthedocs.io/en/latest/get_started/
+########################################################################
+
+library(xgboost)
+## load data
+data(agaricus.train, package='xgboost')
+data(agaricus.test, package='xgboost')
+train <- agaricus.train
+test <- agaricus.test
+## fit model
+bst <- xgboost(data = train$data, label = train$label, max.depth = 2, eta = 1, nround = 2,
+               nthread = 2, objective = "binary:logistic")
+## predict
+pred <- predict(bst, test$data)
+
+## Use the custom data type which supports initial prediction value,
+## weight training and speed up the training.
+dtrain <- xgb.DMatrix(train$data, label = train$label)
+class(dtrain)
+
+
+## Define custom objective and evaluation function
+logregobj <- function(preds, dtrain) {
+    labels <- getinfo(dtrain, "label")
+    preds <- 1/(1 + exp(-preds))
+    grad <- preds - labels
+    hess <- preds * (1 - preds)
+    return(list(grad = grad, hess = hess))
+}
+
+evalerror <- function(preds, dtrain) {
+    labels <- getinfo(dtrain, "label")
+    err <- sqrt(mean((preds-labels)^2))
+    return(list(metric = "MSE", value = err))
+}
+
+dtest <- xgb.DMatrix(test$data, label = test$label)
+watchlist <- list(eval = dtest, train = dtrain)
+param <- list(max_depth = 2, eta = 1, silent = 1)
+bst <- xgb.train(param, dtrain, nrounds = 2, watchlist, logregobj, evalerror, maximize = FALSE)
