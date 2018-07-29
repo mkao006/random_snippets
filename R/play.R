@@ -13570,3 +13570,18 @@ dtest <- xgb.DMatrix(test$data, label = test$label)
 watchlist <- list(eval = dtest, train = dtrain)
 param <- list(max_depth = 2, eta = 1, silent = 1)
 bst <- xgb.train(param, dtrain, nrounds = 2, watchlist, logregobj, evalerror, maximize = FALSE)
+
+
+########################################################################
+## Simulate
+########################################################################
+
+x1 = rnorm(100)
+x2 = 2 + 1 * x1 + rnorm(100)
+
+mod = lm(x2 ~ x1)
+simulate(mod)
+
+
+## The function simulate is really helpful, especially if you want to
+## bootstrap from the distribution.
