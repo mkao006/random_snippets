@@ -13573,7 +13573,7 @@ bst <- xgb.train(param, dtrain, nrounds = 2, watchlist, logregobj, evalerror, ma
 
 
 ########################################################################
-## Simulate
+## Title: Simulate
 ########################################################################
 
 x1 = rnorm(100)
@@ -13585,3 +13585,52 @@ simulate(mod)
 
 ## The function simulate is really helpful, especially if you want to
 ## bootstrap from the distribution.
+
+########################################################################
+## Title: Non-standard evaluation (NSE)
+## Date: 2018-08-14
+## Source: https://dplyr.tidyverse.org/articles/programming.html
+########################################################################
+
+library(dplyr)
+
+greet <- function(name){
+    glue::glue("How do you do, {name}?")
+}
+
+greet("MK")
+
+## Always use the .data pronoun to ensure that you are refering to the
+## right variable
+mutate_y <- function(df) {
+  mutate(df, y = .data$a + .data$x)
+}
+
+
+df <- tibble(
+  g1 = c(1, 1, 2, 2, 2),
+  g2 = c(1, 2, 1, 2, 1),
+  a = sample(5),
+  b = sample(5)
+)
+
+## This obviously doesn't work in dplyr due to the non-standard
+## evaluation.
+my_summarise <- function(df, group_var) {
+  df %>%
+    group_by(group_var) %>%
+    summarise(a = mean(a))
+}
+
+my_summarise(df, g1)
+
+## The following works by first making g1 a special class (`quosure`)
+## then unquote the `group_var` with `!!`. This is why I don't like
+## tidyverse.
+my_summarise <- function(df, group_var) {
+  df %>%
+    group_by(!! group_var) %>%
+    summarise(a = mean(a))
+}
+
+my_summarise(df, quo(g1))
