@@ -13634,3 +13634,15 @@ my_summarise <- function(df, group_var) {
 }
 
 my_summarise(df, quo(g1))
+
+
+########################################################################
+## Envato color
+########################################################################
+
+official_envato_color = "#81b441"
+envato_color = c("#324915", "#4C6D20", "#65912A", official_envato_color,
+                 "#99C460", "#B2D388", "#CCE2B0", "#E5F0D7")
+
+plot(1:length(envato_color), col = envato_color, pch = 19, cex = 8, bty = "n",
+     axes = FALSE, xlab = "", ylab = "")
