@@ -13646,3 +13646,75 @@ envato_color = c("#324915", "#4C6D20", "#65912A", official_envato_color,
 
 plot(1:length(envato_color), col = envato_color, pch = 19, cex = 8, bty = "n",
      axes = FALSE, xlab = "", ylab = "")
+
+
+########################################################################
+## Basics of stringr and stringi
+## Date: 2018-12-28
+## source:https://github.com/tidyverse/stringr
+## https://github.com/rstudio/cheatsheets/blob/master/strings.pdf
+########################################################################
+
+library(stringr)
+library(stringi)
+
+x <- c("why", "video", "cross", "extra", "deal", "authority")
+
+## character length - this is equivalent to nchar
+str_length(x)
+
+## concatenate - equivalent to paste with collapse
+str_c(x, collapse = ", ")
+
+## concatenate - same with paste
+str_c(x, x, x)
+
+## rep or (*) in Python
+str_dup(x, 2)
+
+## Substring
+str_sub(x, 1, 2)
+
+
+## Pad length
+str_pad(x, width = 10, side = "right")
+
+## Truncate
+str_trunc(x, width = 3, side = "left")
+
+## User regular expression
+my_pattern = "[aeiou]"
+
+## Regular expression matching - any string that has a
+str_subset(x, my_pattern)
+
+
+## Count the occurence
+str_count(x, my_pattern)
+
+## Detect pattern
+str_detect(x, my_pattern)
+
+## Find the first match
+str_locate(x, my_pattern)
+
+## Use the _all suffix to return all occurence.
+str_locate_all(x, my_pattern)
+
+
+## extract the pattern
+str_extract(x, my_pattern)
+
+## replace
+str_replace(x, my_pattern, "?")
+
+test_string = "This is a test"
+str_to_lower(test_string)
+str_to_upper(test_string)
+str_to_title(test_string)
+
+
+## A good way to see what the regular expression turns out is to use
+## the `writeLines` function.
+writeLines("\\")
+writeLines("\\n")
